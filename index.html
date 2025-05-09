@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>K-Means++ Image Compressor</title>
+    <style>
+        canvas {
+            margin: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Upload an image:</h2>
+    <input type="file" id="imgInput">
+    <br><br>
+    <canvas id="inputCanvas"></canvas>
+    <canvas id="outputCanvas"></canvas>
+    <button id="compressBtn">Compress Image</button>
+
+    <script type="module" src="compressor.js"></script>
+    <script src="main.js"></script>
+</body>
+
+</html>
