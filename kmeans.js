@@ -1,4 +1,5 @@
-function clusterPointsDistanceSquared(cl, img) {
+// given a cluster, find the squared distance of all pixels in the img from that cluster
+function getSquaredDistanceOfImgToCluster(cl, img) {
     const r = img.length;
     const c = img[0].length;
     const out = Array.from({ length: r }, () => new Array(c));
@@ -15,16 +16,19 @@ function clusterPointsDistanceSquared(cl, img) {
     return out;
 }
 
-function clusterMembers(cls, img) {
+// clusters the pixels into their respective clusters 
+function clusterImg(cls, img) {
     const r = img.length;
     const c = img[0].length;
     const clusteredPixels = Array.from({ length: r }, () => new Array(c).fill(null));
     const dsts = Array.from({ length: r }, () => new Array(c).fill(Infinity));
 
     for (let clIdx = 0; clIdx < cls.length; clIdx++) {
-        const dst = clusterPointsDistanceSquared(cls[clIdx], img);
+        // get distances of all pixels from one cluster
+        const dst = getSquaredDistanceOfImgToCluster(cls[clIdx], img);
         for (let i = 0; i < r; i++) {
             for (let j = 0; j < c; j++) {
+                // add the point to the current cluster if it has a better distance than before
                 if (dst[i][j] < dsts[i][j]) {
                     clusteredPixels[i][j] = clIdx;
                     dsts[i][j] = dst[i][j];
@@ -35,7 +39,8 @@ function clusterMembers(cls, img) {
     return clusteredPixels;
 }
 
-function updateCenters(asgn, img, k) {
+// for every cluster, calculate its average color value
+function getNewCenters(asgn, img, k) {
     const r = img.length;
     const c = img[0].length;
     const centers = Array.from({ length: k }, () => [0, 0, 0]);
@@ -61,19 +66,22 @@ function updateCenters(asgn, img, k) {
     return centers;
 }
 
-function initializedKMeans(cls, img, n) {
+// run k-means with an initial set of clusters and runs n iterations
+function kMeansStandard(cls, img, n) {
     let asgn;
     for (let i = 0; i < n; i++) {
-        asgn = clusterMembers(cls, img);
-        cls = updateCenters(asgn, img, cls.length);
+        asgn = clusterImg(cls, img);
+        cls = getNewCenters(asgn, img, cls.length);
     }
     return [cls, asgn];
 }
 
-function betterQuantizeImage(img, k, n) {
+// creates a set of clusters using the image information and then calls k-means++
+function kMeansPlusPlus(img, k, n) {
     const r = img.length;
     const c = img[0].length;
 
+    // pick a random pixel
     const randomColor = () => [
         Math.floor(Math.random() * 256),
         Math.floor(Math.random() * 256),
@@ -85,7 +93,7 @@ function betterQuantizeImage(img, k, n) {
     for (let iter = 1; iter < k; iter++) {
         let minDsts = Array.from({ length: r }, () => new Array(c).fill(Infinity));
         for (const cl of cls) {
-            const dst = clusterPointsDistanceSquared(cl, img);
+            const dst = getSquaredDistanceOfImgToCluster(cl, img);
             for (let i = 0; i < r; i++) {
                 for (let j = 0; j < c; j++) {
                     minDsts[i][j] = Math.min(minDsts[i][j], dst[i][j]);
@@ -93,6 +101,7 @@ function betterQuantizeImage(img, k, n) {
             }
         }
 
+        // turn distances into a probability distribution and sample from that for new cluster
         const flatMinDsts = minDsts.flat();
         const total = flatMinDsts.reduce((a, b) => a + b, 0);
         const probs = flatMinDsts.map(x => (total > 0 ? x / total : 0));
@@ -108,7 +117,8 @@ function betterQuantizeImage(img, k, n) {
         cls.push([...img[row][col]]);
     }
 
-    const [finalCls, asgn] = initializedKMeans(cls, img, n);
+    // call k-means and create RGB array for return image 
+    const [finalCls, asgn] = kMeansStandard(cls, img, n);
     const outImg = Array.from({ length: r }, () => new Array(c));
     for (let i = 0; i < r; i++) {
         for (let j = 0; j < c; j++) {
