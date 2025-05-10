@@ -1,3 +1,68 @@
+body {
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Styles for the sticky navbar */
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+/* Styles for the title */
+.navbar-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+/* Styles for the menu container */
+.navbar-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+/* Styles for individual menu items */
+.navbar-menu li {
+    margin-left: 20px;
+}
+
+/* Styles for menu links */
+.navbar-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 1em;
+    transition: color 0.3s ease;
+}
+
+.navbar-menu a:hover {
+    color: lightgreen;
+}
+
+.container {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
 canvas {
     margin: 10px;
     border: 1px solid #ccc;
