@@ -1,8 +1,11 @@
+// no image on loading website
 let originalImageData = null;
 
+// bind listeners to components
 document.getElementById("imgInput").addEventListener("change", handleImageUpload);
 document.getElementById("compressBtn").addEventListener("click", handleCompress);
 
+// draw image to a canvas and save the image data
 function handleImageUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -21,14 +24,16 @@ function handleImageUpload(e) {
     img.src = URL.createObjectURL(file);
 }
 
+// calls the k-means++ algorithm and writes the output to the output canvas
 function handleCompress() {
+    // if no image was uploaded
     if (!originalImageData) {
         alert("Please upload an image first.");
         return;
     }
 
     const rgbArray = imageDataTo3DArray(originalImageData);
-    const [compressedRGB] = betterQuantizeImage(rgbArray, 8, 10);
+    const [compressedRGB] = kMeansPlusPlus(rgbArray, 8, 10);
     const compressedImageData = rgb3DToImageData(compressedRGB);
 
     const outputCanvas = document.getElementById("outputCanvas");
@@ -37,6 +42,7 @@ function handleCompress() {
     outputCanvas.getContext("2d").putImageData(compressedImageData, 0, 0);
 }
 
+// iterates over the image and saves RGB values
 function imageDataTo3DArray(imageData) {
     const { width, height, data } = imageData;
     const pixels = Array.from({ length: height }, () =>
@@ -50,6 +56,7 @@ function imageDataTo3DArray(imageData) {
     return pixels;
 }
 
+// iterates over the RGB values and constructs an image 
 function rgb3DToImageData(rgbArray) {
     const height = rgbArray.length;
     const width = rgbArray[0].length;
