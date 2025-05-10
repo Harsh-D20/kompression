@@ -1,9 +1,12 @@
 // no image on loading website
 let originalImageData = null;
+// image has not been compressed yet
+let isCompressed = false;
 
 // bind listeners to components
 document.getElementById("imgInput").addEventListener("change", handleImageUpload);
 document.getElementById("compressBtn").addEventListener("click", handleCompress);
+document.getElementById("downloadBtn").addEventListener("click", downloadOutput);
 
 // draw image to a canvas and save the image data
 function handleImageUpload(e) {
@@ -22,6 +25,7 @@ function handleImageUpload(e) {
         originalImageData = ctx.getImageData(0, 0, img.width, img.height);
     };
     img.src = URL.createObjectURL(file);
+    isCompressed = false;
 }
 
 // calls the k-means++ algorithm and writes the output to the output canvas
@@ -33,6 +37,8 @@ function handleCompress() {
     }
 
     const rgbArray = imageDataTo3DArray(originalImageData);
+    // k = 8, n = 10 as default
+    // TODO: add dynamic k,n
     const [compressedRGB] = kMeansPlusPlus(rgbArray, 8, 10);
     const compressedImageData = rgb3DToImageData(compressedRGB);
 
@@ -40,6 +46,8 @@ function handleCompress() {
     outputCanvas.width = originalImageData.width;
     outputCanvas.height = originalImageData.height;
     outputCanvas.getContext("2d").putImageData(compressedImageData, 0, 0);
+
+    isCompressed = true;
 }
 
 // iterates over the image and saves RGB values
@@ -72,4 +80,18 @@ function rgb3DToImageData(rgbArray) {
         }
     }
     return imageData;
+}
+
+// downloads the image drawn to the output canvas
+function downloadOutput() {
+    if (!isCompressed) {
+        alert("No image uploaded or image uploaded has not been compressed yet.");
+        return;
+    }
+
+    const canvas = document.getElementById("outputCanvas");
+    const link = document.createElement("a");
+    link.download = "compressed-image.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
 }
